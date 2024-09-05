@@ -102,40 +102,65 @@ function custom_interface_v2()
                             'Tag', 'apply_button', ...
                             'Visible', 'off', ...
                             'Callback', @(src, event) apply_highpass_filter(ax2));
+    
+    
 
-
-
-  % Botão para carregar imagem (centralizado)
-  button_width = 150;
-  button_height = 40;
-  spacing = 30; % Espaço entre os botões e o menu
-  total_width = 3 * button_width + 2 * spacing;
-  
-  uicontrol('Style', 'pushbutton', 'String', 'Carregar Imagem', ...
-            'Position', [(fig_width - total_width) / 2, 50, button_width, button_height], ...
-            'Callback', @(src, event) image_operations('load', ax1, ax2));
+    % Botão para carregar imagem (centralizado)
+    button_width = 150;
+    button_height = 40;
+    spacing = 30; % Espaço entre os botões e o menu
+    total_width = 3 * button_width + 2 * spacing;
+    
+    uicontrol('Style', 'pushbutton', 'String', 'Carregar Imagem', ...
+                'Position', [(fig_width - total_width) / 2, 50, button_width, button_height], ...
+                'Callback', @(src, event) image_operations('load', ax1, ax2));
 
     % Menu suspenso para seleção de filtros (centralizado entre os botões)
-    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa'}, ...
+    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda'}, ...
                             'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
                             'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
 
+    % Atualize o Popup de Seleção de Filtro para Extração de Borda
+    popup_filter_type_edge = uicontrol('Style', 'popupmenu', 'String', {'roberts', 'prewitt', 'sobel', 'zerocross', 'log', 'canny'}, ...
+                                    'Position', [(fig_width - 150) / 2, 250, 150, 30], ...
+                                    'Tag', 'popup_filter_type_edge', ...
+                                    'Visible', 'off');  % Inicialmente oculto
+    uicontrol('Style', 'text', 'String', 'Tipo de Filtro', ...
+            'Position', [(fig_width - 150) / 2, 280, 150, 20], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_filter_type_edge', 'Visible', 'off');
 
-  % Botão para salvar imagem modificada (centralizado)
-  uicontrol('Style', 'pushbutton', 'String', 'Salvar Imagem', ...
-            'Position', [(fig_width - total_width) / 2 + 2 * (button_width + spacing), 50, button_width, button_height], ...
-            'Callback', @(src, event) image_operations('save'));
 
-  % Ajusta o tamanho e a posição dos elementos da interface para torná-los responsivos
-  set(f, 'SizeChangedFcn', @(src, event) resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu));
+    % Botão para aplicar o filtro (abaixo do menu)
+    apply_button_edge = uicontrol('Style', 'pushbutton', 'String', 'Aplicar Filtro', ...
+                                'Position', [(fig_width - 150) / 2, 200, 150, 30], ...
+                                'Tag', 'apply_button_edge', ...
+                                'Visible', 'off', ...
+                                'Callback', @(src, event) apply_edge_filter(ax2));  % Função de callback para aplicar o filtro
 
 
 
-  % Espera até que a janela seja fechada
-  uiwait(f);
+    % Botão para salvar imagem modificada (centralizado)
+    uicontrol('Style', 'pushbutton', 'String', 'Salvar Imagem', ...
+                'Position', [(fig_width - total_width) / 2 + 2 * (button_width + spacing), 50, button_width, button_height], ...
+                'Callback', @(src, event) image_operations('save'));
+
+    % Ajusta o tamanho e a posição dos elementos da interface para torná-los responsivos
+    set(f, 'SizeChangedFcn', @(src, event) resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu));
+
+
+
+    % Espera até que a janela seja fechada
+    uiwait(f);
 end
 
+% Função para aplicar o filtro selecionado
 function apply_filter(filter_index, ax1, ax2)
+    % Verifica se uma imagem foi carregada
+    if evalin('base', 'exist(''img'', ''var'')') == 0
+        errordlg('Por favor, carregue uma imagem antes de aplicar um filtro.', 'Erro de Carregamento de Imagem');
+        return;
+    end
+
     % Ocultar todos os controles inicialmente
     set(findobj('Tag', 'slider_gray'), 'Visible', 'off');
     set(findobj('Tag', 'label_gray'), 'Visible', 'off');
@@ -143,14 +168,17 @@ function apply_filter(filter_index, ax1, ax2)
     set(findobj('Tag', 'label_contrast'), 'Visible', 'off');
     set(findobj('Tag', 'input_param_highpass'), 'Visible', 'off');
     set(findobj('Tag', 'label_highpass'), 'Visible', 'off');
-    set(findobj('Tag', 'apply_button'), 'Visible', 'off');
     set(findobj('Tag', 'popup_filter_type'), 'Visible', 'off');
     set(findobj('Tag', 'label_filter_type'), 'Visible', 'off');
+    set(findobj('Tag', 'apply_button'), 'Visible', 'off');
     set(findobj('Tag', 'input_param_lowpass'), 'Visible', 'off');
     set(findobj('Tag', 'label_lowpass'), 'Visible', 'off');
-    set(findobj('Tag', 'apply_button_lowpass'), 'Visible', 'off');
     set(findobj('Tag', 'popup_filter_type_lowpass'), 'Visible', 'off');
     set(findobj('Tag', 'label_filter_type_lowpass'), 'Visible', 'off');
+    set(findobj('Tag', 'apply_button_lowpass'), 'Visible', 'off');
+    set(findobj('Tag', 'popup_filter_type_edge'), 'Visible', 'off');
+    set(findobj('Tag', 'label_filter_type_edge'), 'Visible', 'off');
+    set(findobj('Tag', 'apply_button_edge'), 'Visible', 'off');
 
     img = evalin('base', 'img');
     if isempty(img)
@@ -169,19 +197,48 @@ function apply_filter(filter_index, ax1, ax2)
         case 3  % Filtro Passa-Alta
             set(findobj('Tag', 'input_param_highpass'), 'Visible', 'on');
             set(findobj('Tag', 'label_highpass'), 'Visible', 'on');
-            set(findobj('Tag', 'apply_button'), 'Visible', 'on');
             set(findobj('Tag', 'popup_filter_type'), 'Visible', 'on');
             set(findobj('Tag', 'label_filter_type'), 'Visible', 'on');
+            set(findobj('Tag', 'apply_button'), 'Visible', 'on');
             apply_highpass_filter(ax2);
 
         case 4  % Filtro Passa-Baixa
             set(findobj('Tag', 'input_param_lowpass'), 'Visible', 'on');
             set(findobj('Tag', 'label_lowpass'), 'Visible', 'on');
-            set(findobj('Tag', 'apply_button_lowpass'), 'Visible', 'on');
             set(findobj('Tag', 'popup_filter_type_lowpass'), 'Visible', 'on');
             set(findobj('Tag', 'label_filter_type_lowpass'), 'Visible', 'on');
+            set(findobj('Tag', 'apply_button_lowpass'), 'Visible', 'on');
             apply_lowpass_filter(ax2);
+
+        case 5  % Extração de Borda
+            set(findobj('Tag', 'popup_filter_type_edge'), 'Visible', 'on');
+            set(findobj('Tag', 'label_filter_type_edge'), 'Visible', 'on');
+            set(findobj('Tag', 'apply_button_edge'), 'Visible', 'on');  % Certifique-se de que o botão está visível
+            apply_edge_filter(ax2);  % Função para aplicar o filtro de extração de borda
+
+        otherwise
+            errordlg('Seleção de filtro inválida!', 'Erro');
     end
+end
+
+function apply_edge_filter(ax2)
+    % Verifica se uma imagem foi carregada
+    if evalin('base', 'exist(''img'', ''var'')') == 0
+        errordlg('Por favor, carregue uma imagem antes de aplicar um filtro.', 'Erro de Carregamento de Imagem');
+        return;
+    end
+
+    % Obtém a imagem original
+    img = evalin('base', 'img');
+    filter_type = get(findobj('Tag', 'popup_filter_type_edge'), 'Value');
+    filter_name = get(findobj('Tag', 'popup_filter_type_edge'), 'String');
+    filter_name = filter_name{filter_type};
+
+    % Aplica o filtro de extração de borda
+    img_filtered = edge_extraction(filter_name, img);
+    assignin('base', 'img_modified', img_filtered);  % Salva a imagem modificada na base de dados
+    axes(ax2);
+    imshow(img_filtered);
 end
 
 function apply_lowpass_filter(ax2)

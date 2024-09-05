@@ -38,6 +38,14 @@ function resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu)
     % Centraliza o botão "Aplicar Parâmetro" abaixo dos dois elementos
     set(findobj('Tag', 'apply_button'), 'Position', [(fig_width - 120) / 2, fig_height*0.3 - 40, 120, 30]);
 
+    % Calcula e ajusta a posição do popup de seleção de filtro de extração de borda e botão "Aplicar Filtro"
+    set(findobj('Tag', 'popup_filter_type_edge'), 'Position', [(fig_width - 150) / 2, fig_height*0.3, 150, 20]);
+    set(findobj('Tag', 'label_filter_type_edge'), 'Position', [(fig_width - 150) / 2, fig_height*0.3 + 25, 150, 20]);
+    
+    % Centraliza o botão "Aplicar Filtro" abaixo do popup de seleção de filtro de extração de borda
+    set(findobj('Tag', 'apply_button_edge'), 'Position', [(fig_width - 120) / 2, fig_height*0.3 - 40, 120, 30]);
+
+
     % Centraliza o menu de filtros entre os botões
     button_width = 150;
     button_height = 40;
@@ -48,6 +56,4 @@ function resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu)
     % Atualiza as posições dos botões de carregar e salvar imagem
     set(findobj(f, 'String', 'Carregar Imagem'), 'Position', [(fig_width - total_width) / 2, 50, button_width, button_height]);
     set(findobj(f, 'String', 'Salvar Imagem'), 'Position', [(fig_width - total_width) / 2 + 2 * (button_width + spacing), 50, button_width, button_height]);
-    
 end
-
