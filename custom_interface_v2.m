@@ -39,13 +39,21 @@ function custom_interface_v2()
                     'Callback', @(src, event) grey_function(src, ax1, ax2));
   uicontrol('Style', 'text', 'String', 'Contraste', 'Position', [(fig_width - slider_width_total) / 2 + 430, 275, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_contrast', 'Visible', 'off');
 
-  % Outros elementos que poderiam ser necessários para diferentes filtros
-  % Exemplo de entrada de parâmetro para filtro passa-alta
+  % Elemento de entrada de parâmetro para filtro passa-alta (centralizado e responsivo)
   input_param_highpass = uicontrol('Style', 'edit', 'String', '0.2', ...
-                                   'Position', [(fig_width - slider_width_total) / 2 + 330, 250, 100, 20], ...
+                                   'Position', [(fig_width - 100) / 2, 200, 100, 20], ...
                                    'Tag', 'input_param_highpass', ...
                                    'Visible', 'off');  % Inicialmente oculto
-  uicontrol('Style', 'text', 'String', 'Parâmetro Passa-Alta', 'Position', [(fig_width - slider_width_total) / 2 + 430, 275, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_highpass', 'Visible', 'off');
+  uicontrol('Style', 'text', 'String', 'Parâmetro Passa-Alta', ...
+            'Position', [(fig_width - 150) / 2, 225, 150, 20], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_highpass', 'Visible', 'off');
+
+  % Botão para aplicar o parâmetro do filtro passa-alta (centralizado e abaixo do campo de entrada)
+  apply_button = uicontrol('Style', 'pushbutton', 'String', 'Aplicar Parâmetro', ...
+                           'Position', [(fig_width - 120) / 2, 160, 120, 30], ...
+                           'Tag', 'apply_button', ...
+                           'Visible', 'off', ...  % Inicialmente oculto
+                           'Callback', @(src, event) apply_highpass_filter(ax2));
 
   % Botão para carregar imagem (centralizado)
   button_width = 150;
@@ -83,6 +91,7 @@ function apply_filter(filter_index, ax1, ax2)
     set(findobj('Tag', 'label_contrast'), 'Visible', 'off');
     set(findobj('Tag', 'input_param_highpass'), 'Visible', 'off');
     set(findobj('Tag', 'label_highpass'), 'Visible', 'off');
+    set(findobj('Tag', 'apply_button'), 'Visible', 'off');
 
     img = evalin('base', 'img');
     if isempty(img)
@@ -101,10 +110,27 @@ function apply_filter(filter_index, ax1, ax2)
         case 3  % Filtro Passa-Alta
             set(findobj('Tag', 'input_param_highpass'), 'Visible', 'on');
             set(findobj('Tag', 'label_highpass'), 'Visible', 'on');
-            param_value = str2double(get(findobj('Tag', 'input_param_highpass'), 'String'));
-            img_filtered = pass_filters('high_pass', img);  % Chama o filtro passa-alta
-            assignin('base', 'img_modified', img_filtered);  % Salva a imagem modificada na base de dados
-            axes(ax2);
-            imshow(img_filtered);
+            set(findobj('Tag', 'apply_button'), 'Visible', 'on');
+            apply_highpass_filter(ax2); % Aplica automaticamente o filtro com o valor padrão exibido
     end
+end
+
+% Função para aplicar o filtro passa-alta com o parâmetro atual
+function apply_highpass_filter(ax2)
+    img = evalin('base', 'img');
+    if isempty(img)
+        errordlg('Carregue uma imagem primeiro!', 'Erro');
+        return;
+    end
+
+    param_value = str2double(get(findobj('Tag', 'input_param_highpass'), 'String'));
+    if isnan(param_value)
+        errordlg('Insira um valor numérico válido para o parâmetro do filtro passa-alta!', 'Erro');
+        return;
+    end
+
+    img_filtered = pass_filters('high_pass', img, param_value);  % Chama o filtro passa-alta com o parâmetro ajustável
+    assignin('base', 'img_modified', img_filtered);  % Salva a imagem modificada na base de dados
+    axes(ax2);
+    imshow(img_filtered);
 end
