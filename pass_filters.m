@@ -13,6 +13,19 @@ function img_filtered = pass_filters(filter_type, img, param)
             h = fspecial('laplacian', param);
             % Aplica o filtro passa-alta
             img_filtered = imfilter(img, h, 'replicate');
+        case 'high_boost'  % Filtro Passa-Alta com Alto Reforço
+            A = param;  % O parâmetro agora é 'A' para o filtro de alto reforço
+            h = fspecial('average', 3);  % Filtro passa-baixa com kernel de média
+            img_lowpass = imfilter(img, h, 'replicate');  % Aplica o filtro passa-baixa
+            img_filtered = A * img - img_lowpass;  % Aplica a fórmula do filtro de alto reforço
+        case 'low_pass_mean'  % Filtro Passa-Baixa Média
+            h = fspecial('average', [param param]);  % Filtro passa-baixa com kernel de média de tamanho param x param
+            img_filtered = imfilter(img, h, 'replicate');  % Aplica o filtro passa-baixa
+
+        case 'low_pass_median'  % Filtro Passa-Baixa Mediana
+            img_filtered = medfilt2(img, [param param]);  % Filtro mediano com vizinhança de tamanho param x param
+
+
             
         % Outras opções de filtros serão adicionadas aqui posteriormente
 

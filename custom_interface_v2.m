@@ -39,21 +39,71 @@ function custom_interface_v2()
                     'Callback', @(src, event) grey_function(src, ax1, ax2));
   uicontrol('Style', 'text', 'String', 'Contraste', 'Position', [(fig_width - slider_width_total) / 2 + 430, 275, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_contrast', 'Visible', 'off');
 
-  % Elemento de entrada de parâmetro para filtro passa-alta (centralizado e responsivo)
-  input_param_highpass = uicontrol('Style', 'edit', 'String', '0.2', ...
-                                   'Position', [(fig_width - 100) / 2, 200, 100, 20], ...
-                                   'Tag', 'input_param_highpass', ...
-                                   'Visible', 'off');  % Inicialmente oculto
-  uicontrol('Style', 'text', 'String', 'Parâmetro Passa-Alta', ...
-            'Position', [(fig_width - 150) / 2, 225, 150, 20], ...
+    % Define as larguras dos elementos e espaçamento
+    element_width = 150;
+    element_height = 20;
+    button_height = 30;
+    spacing_between_elements = 30; % Ajuste o espaçamento para centralizar
+
+    % Calcula a posição de centralização com base na largura total da figura e dos elementos
+    total_width = 2 * element_width + spacing_between_elements; % Largura total necessária para centralização
+    center_x = (fig_width - total_width) / 2; % Posição inicial no eixo x para centralização
+
+    % Campo de entrada para parâmetro passa-baixa
+    input_param_lowpass = uicontrol('Style', 'edit', 'String', '3', ...
+                                    'Position', [center_x, 200, element_width, element_height], ...
+                                    'Tag', 'input_param_lowpass', ...
+                                    'Visible', 'off');
+
+    % Texto para o campo de entrada (acima do campo)
+    uicontrol('Style', 'text', 'String', 'Parâmetro Passa-Baixa', ...
+            'Position', [center_x, 225, element_width, element_height], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_lowpass', 'Visible', 'off');
+
+    % Menu suspenso para escolher tipo de filtro passa-baixa
+    popup_filter_type_lowpass = uicontrol('Style', 'popupmenu', 'String', {'média', 'mediana'}, ...
+                                        'Position', [center_x + element_width + spacing_between_elements, 200, element_width, element_height], ...
+                                        'Tag', 'popup_filter_type_lowpass', ...
+                                        'Visible', 'off');
+
+    % Texto para o menu suspenso (acima do menu)
+    uicontrol('Style', 'text', 'String', 'Tipo de Filtro', ...
+            'Position', [center_x + element_width + spacing_between_elements, 225, element_width, element_height], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_filter_type_lowpass', 'Visible', 'off');
+
+    % Botão para aplicar o parâmetro do filtro passa-baixa (abaixo e centralizado entre os dois elementos)
+    apply_button_lowpass = uicontrol('Style', 'pushbutton', 'String', 'Aplicar Parâmetro', ...
+                                    'Position', [center_x + (total_width - element_width) / 2, 160, element_width, button_height], ...
+                                    'Tag', 'apply_button_lowpass', ...
+                                    'Visible', 'off', ...
+                                    'Callback', @(src, event) apply_lowpass_filter(ax2));
+
+    % Ajuste similar para o filtro Passa-Alta
+    input_param_highpass = uicontrol('Style', 'edit', 'String', '0', ...
+                                    'Position', [center_x, 200, element_width, element_height], ...
+                                    'Tag', 'input_param_highpass', ...
+                                    'Visible', 'off');
+
+    uicontrol('Style', 'text', 'String', 'Parâmetro Passa-Alta', ...
+            'Position', [center_x, 225, element_width, element_height], ...
             'HorizontalAlignment', 'center', 'Tag', 'label_highpass', 'Visible', 'off');
 
-  % Botão para aplicar o parâmetro do filtro passa-alta (centralizado e abaixo do campo de entrada)
-  apply_button = uicontrol('Style', 'pushbutton', 'String', 'Aplicar Parâmetro', ...
-                           'Position', [(fig_width - 120) / 2, 160, 120, 30], ...
-                           'Tag', 'apply_button', ...
-                           'Visible', 'off', ...  % Inicialmente oculto
-                           'Callback', @(src, event) apply_highpass_filter(ax2));
+    popup_filter_type = uicontrol('Style', 'popupmenu', 'String', {'básico', 'alto reforço'}, ...
+                                'Position', [center_x + element_width + spacing_between_elements, 200, element_width, element_height], ...
+                                'Tag', 'popup_filter_type', ...
+                                'Visible', 'off');
+
+    uicontrol('Style', 'text', 'String', 'Tipo de Filtro', ...
+            'Position', [center_x + element_width + spacing_between_elements, 225, element_width, element_height], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_filter_type', 'Visible', 'off');
+
+    apply_button = uicontrol('Style', 'pushbutton', 'String', 'Aplicar Parâmetro', ...
+                            'Position', [center_x + (total_width - element_width) / 2, 160, element_width, button_height], ...
+                            'Tag', 'apply_button', ...
+                            'Visible', 'off', ...
+                            'Callback', @(src, event) apply_highpass_filter(ax2));
+
+
 
   % Botão para carregar imagem (centralizado)
   button_width = 150;
@@ -65,10 +115,11 @@ function custom_interface_v2()
             'Position', [(fig_width - total_width) / 2, 50, button_width, button_height], ...
             'Callback', @(src, event) image_operations('load', ax1, ax2));
 
-  % Menu suspenso para seleção de filtros (centralizado entre os botões)
-  filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta'}, ...
-                          'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
-                          'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+    % Menu suspenso para seleção de filtros (centralizado entre os botões)
+    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa'}, ...
+                            'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
+                            'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+
 
   % Botão para salvar imagem modificada (centralizado)
   uicontrol('Style', 'pushbutton', 'String', 'Salvar Imagem', ...
@@ -78,11 +129,12 @@ function custom_interface_v2()
   % Ajusta o tamanho e a posição dos elementos da interface para torná-los responsivos
   set(f, 'SizeChangedFcn', @(src, event) resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu));
 
+
+
   % Espera até que a janela seja fechada
   uiwait(f);
 end
 
-% Função para aplicar o filtro selecionado
 function apply_filter(filter_index, ax1, ax2)
     % Ocultar todos os controles inicialmente
     set(findobj('Tag', 'slider_gray'), 'Visible', 'off');
@@ -92,6 +144,13 @@ function apply_filter(filter_index, ax1, ax2)
     set(findobj('Tag', 'input_param_highpass'), 'Visible', 'off');
     set(findobj('Tag', 'label_highpass'), 'Visible', 'off');
     set(findobj('Tag', 'apply_button'), 'Visible', 'off');
+    set(findobj('Tag', 'popup_filter_type'), 'Visible', 'off');
+    set(findobj('Tag', 'label_filter_type'), 'Visible', 'off');
+    set(findobj('Tag', 'input_param_lowpass'), 'Visible', 'off');
+    set(findobj('Tag', 'label_lowpass'), 'Visible', 'off');
+    set(findobj('Tag', 'apply_button_lowpass'), 'Visible', 'off');
+    set(findobj('Tag', 'popup_filter_type_lowpass'), 'Visible', 'off');
+    set(findobj('Tag', 'label_filter_type_lowpass'), 'Visible', 'off');
 
     img = evalin('base', 'img');
     if isempty(img)
@@ -111,11 +170,52 @@ function apply_filter(filter_index, ax1, ax2)
             set(findobj('Tag', 'input_param_highpass'), 'Visible', 'on');
             set(findobj('Tag', 'label_highpass'), 'Visible', 'on');
             set(findobj('Tag', 'apply_button'), 'Visible', 'on');
-            apply_highpass_filter(ax2); % Aplica automaticamente o filtro com o valor padrão exibido
+            set(findobj('Tag', 'popup_filter_type'), 'Visible', 'on');
+            set(findobj('Tag', 'label_filter_type'), 'Visible', 'on');
+            apply_highpass_filter(ax2);
+
+        case 4  % Filtro Passa-Baixa
+            set(findobj('Tag', 'input_param_lowpass'), 'Visible', 'on');
+            set(findobj('Tag', 'label_lowpass'), 'Visible', 'on');
+            set(findobj('Tag', 'apply_button_lowpass'), 'Visible', 'on');
+            set(findobj('Tag', 'popup_filter_type_lowpass'), 'Visible', 'on');
+            set(findobj('Tag', 'label_filter_type_lowpass'), 'Visible', 'on');
+            apply_lowpass_filter(ax2);
     end
 end
 
-% Função para aplicar o filtro passa-alta com o parâmetro atual
+function apply_lowpass_filter(ax2)
+    img = evalin('base', 'img');
+    if isempty(img)
+        errordlg('Carregue uma imagem primeiro!', 'Erro');
+        return;
+    end
+
+    param_value = str2double(get(findobj('Tag', 'input_param_lowpass'), 'String'));
+    if isnan(param_value) || param_value < 1
+        errordlg('Insira um valor numérico válido para o parâmetro do filtro passa-baixa!', 'Erro');
+        return;
+    end
+
+    % Obter o tipo de filtro do menu suspenso
+    filter_type_index = get(findobj('Tag', 'popup_filter_type_lowpass'), 'Value');
+    filter_type = {'média', 'mediana'};
+
+    if strcmp(filter_type{filter_type_index}, 'média')
+        img_filtered = pass_filters('low_pass_mean', img, param_value);  % Filtro Passa-Baixa Média
+    elseif strcmp(filter_type{filter_type_index}, 'mediana')
+        img_filtered = pass_filters('low_pass_median', img, param_value);  % Filtro Passa-Baixa Mediana
+    else
+        errordlg('Tipo de filtro inválido! Use "média" ou "mediana".', 'Erro');
+        return;
+    end
+
+    assignin('base', 'img_modified', img_filtered);  % Salva a imagem modificada na base de dados
+    axes(ax2);
+    imshow(img_filtered);
+end
+
+
 function apply_highpass_filter(ax2)
     img = evalin('base', 'img');
     if isempty(img)
@@ -129,8 +229,22 @@ function apply_highpass_filter(ax2)
         return;
     end
 
-    img_filtered = pass_filters('high_pass', img, param_value);  % Chama o filtro passa-alta com o parâmetro ajustável
+    % Obter o tipo de filtro do popup menu
+    filter_type_index = get(findobj('Tag', 'popup_filter_type'), 'Value');
+    filter_type = {'básico', 'alto reforço'};  % Definição dos tipos de filtro disponíveis
+
+    if strcmp(filter_type{filter_type_index}, 'básico')
+        img_filtered = pass_filters('high_pass', img, param_value);  % Filtro Passa-Alta Básico
+    elseif strcmp(filter_type{filter_type_index}, 'alto reforço')
+        img_filtered = pass_filters('high_boost', img, param_value);  % Filtro Passa-Alta com Alto Reforço
+    else
+        errordlg('Tipo de filtro inválido!', 'Erro');
+        return;
+    end
+
     assignin('base', 'img_modified', img_filtered);  % Salva a imagem modificada na base de dados
     axes(ax2);
     imshow(img_filtered);
 end
+
+
