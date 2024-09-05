@@ -16,35 +16,33 @@ function resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu)
     set(findobj(f, 'String', 'Escala de Cinza'), 'Position', [(fig_width - slider_width_total) / 2 + 100, fig_height*0.4 + 25, 100, 20]);
     set(findobj(f, 'String', 'Contraste'), 'Position', [(fig_width - slider_width_total) / 2 + 430, fig_height*0.4 + 25, 100, 20]);
 
-    % Calcula e ajusta a posição dos campos de entrada do filtro passa-baixa e tipo de filtro
-    total_width = 2 * 150 + 50;  % Calcula a largura total para centralização dos elementos do filtro passa-baixa
+    % Centraliza campos do filtro passa-baixa
+    total_width = 2 * 150 + 50; 
     set(findobj('Tag', 'input_param_lowpass'), 'Position', [(fig_width - total_width) / 2, fig_height*0.3, 150, 20]);
     set(findobj('Tag', 'label_lowpass'), 'Position', [(fig_width - total_width) / 2, fig_height*0.3 + 25, 150, 20]);
-
     set(findobj('Tag', 'popup_filter_type_lowpass'), 'Position', [(fig_width - total_width) / 2 + 150 + 50, fig_height*0.3, 150, 20]);
     set(findobj('Tag', 'label_filter_type_lowpass'), 'Position', [(fig_width - total_width) / 2 + 150 + 50, fig_height*0.3 + 25, 150, 20]);
-
-    % Centraliza o botão "Aplicar Parâmetro" abaixo dos dois elementos
     set(findobj('Tag', 'apply_button_lowpass'), 'Position', [(fig_width - 120) / 2, fig_height*0.3 - 40, 120, 30]);
 
-    % Calcula e ajusta a posição dos campos de entrada do filtro passa-alta e tipo de filtro
-    total_width = 2 * 150 + 50;  % Calcula a largura total para centralização dos elementos do filtro passa-alta
+    % Centraliza campos do filtro passa-alta
     set(findobj('Tag', 'input_param_highpass'), 'Position', [(fig_width - total_width) / 2, fig_height*0.3, 150, 20]);
     set(findobj('Tag', 'label_highpass'), 'Position', [(fig_width - total_width) / 2, fig_height*0.3 + 25, 150, 20]);
-
     set(findobj('Tag', 'popup_filter_type'), 'Position', [(fig_width - total_width) / 2 + 150 + 50, fig_height*0.3, 150, 20]);
     set(findobj('Tag', 'label_filter_type'), 'Position', [(fig_width - total_width) / 2 + 150 + 50, fig_height*0.3 + 25, 150, 20]);
-
-    % Centraliza o botão "Aplicar Parâmetro" abaixo dos dois elementos
     set(findobj('Tag', 'apply_button'), 'Position', [(fig_width - 120) / 2, fig_height*0.3 - 40, 120, 30]);
 
-    % Calcula e ajusta a posição do popup de seleção de filtro de extração de borda e botão "Aplicar Filtro"
+    % Centraliza campos do filtro de extração de borda
     set(findobj('Tag', 'popup_filter_type_edge'), 'Position', [(fig_width - 150) / 2, fig_height*0.3, 150, 20]);
     set(findobj('Tag', 'label_filter_type_edge'), 'Position', [(fig_width - 150) / 2, fig_height*0.3 + 25, 150, 20]);
-    
-    % Centraliza o botão "Aplicar Filtro" abaixo do popup de seleção de filtro de extração de borda
     set(findobj('Tag', 'apply_button_edge'), 'Position', [(fig_width - 120) / 2, fig_height*0.3 - 40, 120, 30]);
 
+    % Centraliza campos do ruído
+    total_width_noise = 2 * 150 + 50;  % Calcula a largura total para centralização
+    set(findobj('Tag', 'popup_noise_type'), 'Position', [(fig_width - total_width_noise) / 2, fig_height*0.3, 150, 20]);
+    set(findobj('Tag', 'label_noise_type'), 'Position', [(fig_width - total_width_noise) / 2, fig_height*0.3 + 25, 150, 20]);
+    set(findobj('Tag', 'input_param_variance'), 'Position', [(fig_width - total_width_noise) / 2 + 150 + 50, fig_height*0.3, 150, 20]);
+    set(findobj('Tag', 'label_param_variance'), 'Position', [(fig_width - total_width_noise) / 2 + 150 + 50, fig_height*0.3 + 25, 150, 20]);
+    set(findobj('Tag', 'apply_button_noise'), 'Position', [(fig_width - 120) / 2, fig_height*0.3 - 40, 120, 30]);
 
     % Centraliza o menu de filtros entre os botões
     button_width = 150;

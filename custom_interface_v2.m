@@ -116,9 +116,10 @@ function custom_interface_v2()
                 'Callback', @(src, event) image_operations('load', ax1, ax2));
 
     % Menu suspenso para seleção de filtros (centralizado entre os botões)
-    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda'}, ...
+    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda', 'Ruído'}, ...
                             'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
                             'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+
 
     % Atualize o Popup de Seleção de Filtro para Extração de Borda
     popup_filter_type_edge = uicontrol('Style', 'popupmenu', 'String', {'roberts', 'prewitt', 'sobel', 'zerocross', 'log', 'canny'}, ...
@@ -147,6 +148,30 @@ function custom_interface_v2()
     % Ajusta o tamanho e a posição dos elementos da interface para torná-los responsivos
     set(f, 'SizeChangedFcn', @(src, event) resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu));
 
+    % Menu suspenso para escolher tipo de ruído
+    popup_noise_type = uicontrol('Style', 'popupmenu', 'String', {'Salt & Pepper', 'Gaussian', 'Speckle', 'Poisson'}, ...
+                                'Position', [(fig_width - 150) / 2, 250, 150, 30], ...
+                                'Tag', 'popup_noise_type', ...
+                                'Visible', 'off');  % Inicialmente oculto
+    uicontrol('Style', 'text', 'String', 'Tipo de Ruído', ...
+            'Position', [(fig_width - 150) / 2, 280, 150, 20], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_noise_type', 'Visible', 'off');
+
+    % Parâmetros para variância e intensidade (exemplo)
+    input_param_variance = uicontrol('Style', 'edit', 'String', '0.02', ...
+                                    'Position', [(fig_width - 150) / 2, 220, 150, 20], ...
+                                    'Tag', 'input_param_variance', ...
+                                    'Visible', 'off');
+    uicontrol('Style', 'text', 'String', 'Variância', ...
+            'Position', [(fig_width - 150) / 2, 245, 150, 20], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_param_variance', 'Visible', 'off');
+
+    % Botão para aplicar o ruído
+    apply_button_noise = uicontrol('Style', 'pushbutton', 'String', 'Aplicar Ruído', ...
+                                'Position', [(fig_width - 150) / 2, 180, 150, 30], ...
+                                'Tag', 'apply_button_noise', ...
+                                'Visible', 'off', ...
+                                'Callback', @(src, event) apply_noise(ax2));
 
 
     % Espera até que a janela seja fechada
@@ -179,6 +204,11 @@ function apply_filter(filter_index, ax1, ax2)
     set(findobj('Tag', 'popup_filter_type_edge'), 'Visible', 'off');
     set(findobj('Tag', 'label_filter_type_edge'), 'Visible', 'off');
     set(findobj('Tag', 'apply_button_edge'), 'Visible', 'off');
+    set(findobj('Tag', 'popup_noise_type'), 'Visible', 'off');
+        set(findobj('Tag', 'label_noise_type'), 'Visible', 'off');
+        set(findobj('Tag', 'input_param_variance'), 'Visible', 'off');
+        set(findobj('Tag', 'label_param_variance'), 'Visible', 'off');
+        set(findobj('Tag', 'apply_button_noise'), 'Visible', 'off');
 
     img = evalin('base', 'img');
     if isempty(img)
@@ -216,10 +246,63 @@ function apply_filter(filter_index, ax1, ax2)
             set(findobj('Tag', 'apply_button_edge'), 'Visible', 'on');  % Certifique-se de que o botão está visível
             apply_edge_filter(ax2);  % Função para aplicar o filtro de extração de borda
 
+        case 6  % Ruído
+            set(findobj('Tag', 'popup_noise_type'), 'Visible', 'on');
+            set(findobj('Tag', 'label_noise_type'), 'Visible', 'on');
+            set(findobj('Tag', 'input_param_variance'), 'Visible', 'on');
+            set(findobj('Tag', 'label_param_variance'), 'Visible', 'on');
+            set(findobj('Tag', 'apply_button_noise'), 'Visible', 'on');
+            apply_noise(ax2);
+
         otherwise
             errordlg('Seleção de filtro inválida!', 'Erro');
     end
 end
+
+function apply_noise(ax2)
+    img = evalin('base', 'img');
+    if isempty(img)
+        errordlg('Carregue uma imagem primeiro!', 'Erro');
+        return;
+    end
+
+    % Obter o tipo de ruído
+    noise_type_index = get(findobj('Tag', 'popup_noise_type'), 'Value');
+    noise_type = {'Salt & Pepper', 'Gaussian', 'Speckle', 'Poisson', 'Uniform', 'Periodic'};
+    selected_noise = noise_type{noise_type_index};
+
+    % Obter o valor da variância ou outros parâmetros
+    param_variance = str2double(get(findobj('Tag', 'input_param_variance'), 'String'));
+    if isnan(param_variance) || param_variance <= 0
+        errordlg('Insira um valor válido para a variância!', 'Erro');
+        return;
+    end
+
+    % Aplicar o ruído baseado na escolha
+    switch selected_noise
+        case 'Salt & Pepper'
+            img_noisy = imnoise(img, 'salt & pepper', param_variance);
+
+        case 'Gaussian'
+            img_noisy = imnoise(img, 'gaussian', 0, param_variance);
+
+        case 'Speckle'
+            img_noisy = imnoise(img, 'speckle', param_variance);
+
+        case 'Poisson'
+            img_noisy = imnoise(img, 'poisson');
+
+        otherwise
+            errordlg('Tipo de ruído inválido!', 'Erro');
+            return;
+    end
+
+    assignin('base', 'img_modified', img_noisy);  % Salva a imagem modificada na base de dados
+    axes(ax2);
+    imshow(img_noisy);
+end
+
+
 
 function apply_edge_filter(ax2)
     % Verifica se uma imagem foi carregada
