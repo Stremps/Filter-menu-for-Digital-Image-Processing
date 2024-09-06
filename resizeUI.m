@@ -44,12 +44,21 @@ function resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu)
     set(findobj('Tag', 'label_param_variance'), 'Position', [(fig_width - total_width_noise) / 2 + 150 + 50, fig_height*0.3 + 25, 150, 20]);
     set(findobj('Tag', 'apply_button_noise'), 'Position', [(fig_width - 120) / 2, fig_height*0.3 - 40, 120, 30]);
 
+    % Centraliza o slider do Watershed
+    total_width_watershed = 300;
+    set(findobj('Tag', 'slider_watershed_threshold'), 'Position', [(fig_width - total_width_watershed) / 2, fig_height*0.3, 300, 20]);
+    set(findobj('Tag', 'label_watershed_threshold'), 'Position', [(fig_width - total_width_watershed) / 2, fig_height*0.3 + 25, 300, 20]);
+
+
     % Centraliza os controles da Limiarização
     total_width = 300; % Largura do slider de Limiarização
     set(findobj('Tag', 'slider_threshold'), 'Position', [(fig_width - total_width) / 2, fig_height*0.3, 300, 20]);
     set(findobj('Tag', 'label_threshold'), 'Position', [(fig_width - total_width) / 2, fig_height*0.3 + 25, 300, 20]);
 
-    
+    % Centraliza o slider do Watershed
+    total_width_watershed = 300; % Largura do slider de Watershed
+    set(findobj('Tag', 'slider_watershed_threshold'), 'Position', [(fig_width - total_width_watershed) / 2, fig_height*0.3, 300, 20]);
+    set(findobj('Tag', 'label_watershed_threshold'), 'Position', [(fig_width - total_width_watershed) / 2, fig_height*0.3 + 25, 300, 20]);
 
     % Centraliza o menu de filtros entre os botões
     button_width = 150;

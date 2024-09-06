@@ -115,10 +115,12 @@ function custom_interface_v2()
                 'Position', [(fig_width - total_width) / 2, 50, button_width, button_height], ...
                 'Callback', @(src, event) image_operations('load', ax1, ax2));
 
-    % Adicionando a opção de Limiarização no menu de seleção de filtros
-    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda', 'Ruidos', 'Limiarização', 'Histograma (Escala de Cinza)'}, ...
-                        'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
-                        'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+    % Adicionando a opção de Watershed no menu de seleção de filtros
+    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda', 'Ruidos', 'Limiarização', 'Histograma (Escala de Cinza)', 'Watershed'}, ...
+                            'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
+                            'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+
+
 
     % Adicionar um slider para o valor do limiar (Threshold)
     slider_threshold = uicontrol('Style', 'slider', 'Min', 0, 'Max', 1, 'Value', 0.5, ...
@@ -182,6 +184,17 @@ function custom_interface_v2()
                                 'Visible', 'off', ...
                                 'Callback', @(src, event) apply_noise(ax2));
 
+    % Adicionar um slider para o valor do limiar (Threshold) para Watershed
+    slider_watershed_threshold = uicontrol('Style', 'slider', 'Min', 0, 'Max', 1, 'Value', 0.5, ...
+                            'Position', [(fig_width - 300) / 2, fig_height*0.3, 300, 20], ...
+                            'Tag', 'slider_watershed_threshold', ...
+                            'Visible', 'off', ...  % Inicialmente oculto
+                            'Callback', @(src, event) apply_watershed_filter(ax1, ax2, src));
+
+    uicontrol('Style', 'text', 'String', 'Valor de Limiar (Watershed)', 'Position', [(fig_width - 100) / 2, fig_height*0.3 + 25, 100, 20], ...
+            'HorizontalAlignment', 'center', 'Tag', 'label_watershed_threshold', 'Visible', 'off');
+
+
     % Espera até que a janela seja fechada
     uiwait(f);
 end
@@ -220,6 +233,8 @@ function apply_filter(filter_index, ax1, ax2)
     set(findobj('Tag', 'apply_button_noise'), 'Visible', 'off');
     set(findobj('Tag', 'slider_threshold'), 'Visible', 'off');
     set(findobj('Tag', 'label_threshold'), 'Visible', 'off');
+    set(findobj('Tag', 'slider_watershed_threshold'), 'Visible', 'off');
+    set(findobj('Tag', 'label_watershed_threshold'), 'Visible', 'off');
 
     % Funções específicas para cada filtro
     switch filter_index
@@ -292,11 +307,40 @@ function apply_filter(filter_index, ax1, ax2)
             title(ax22, 'Histograma');
             
             apply_histogram_equalization(ax11, ax22, ax3, ax4);
+        
+        case 9  % Watershed
+        set(findobj('Tag', 'slider_watershed_threshold'), 'Visible', 'on');
+        set(findobj('Tag', 'label_watershed_threshold'), 'Visible', 'on');
+        apply_watershed_filter(ax1, ax2, findobj('Tag', 'slider_watershed_threshold'));
 
         otherwise
             errordlg('Seleção de filtro inválida!', 'Erro');
     end
 end
+
+function apply_watershed_filter(ax1, ax2, src)
+    % Verifica se uma imagem foi carregada
+    if evalin('base', 'exist(''img'', ''var'')') == 0
+        errordlg('Por favor, carregue uma imagem antes de aplicar o filtro.', 'Erro de Carregamento de Imagem');
+        return;
+    end
+
+    % Obtém a imagem original
+    img = evalin('base', 'img');
+
+    % Obtém o valor do limiar do slider
+    threshold_value = get(src, 'Value');
+
+    % Aplica o filtro Watershed com o valor do threshold ajustável
+    img_segmented = watershed_filter(img, threshold_value);
+
+    % Exibe a imagem segmentada
+    axes(ax2);
+    imshow(img_segmented);
+    title('Segmentação Watershed');
+end
+
+
 
 
 function apply_histogram_equalization(ax1, ax2, ax3, ax4)
