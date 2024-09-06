@@ -1,43 +1,43 @@
 function custom_interface_v2()
-  % Carregar o pacote de imagem
-  pkg load image;
+    % Carregar o pacote de imagem
+    pkg load image;
 
-  % Dimensões do monitor para centralização
-  screen_width = 1920;
-  screen_height = 1080;
+    % Dimensões do monitor para centralização
+    screen_width = 1920;
+    screen_height = 1080;
 
-  % Cria uma nova janela (figure) com centralização de acordo com a resolução do monitor
-  fig_width = 900;
-  fig_height = 600;
-  f = figure('Position', [(screen_width - fig_width) / 2, (screen_height - fig_height) / 2, fig_width, fig_height], ...
-             'Name', 'Processamento de Imagens', 'NumberTitle', 'off', 'Resize', 'on');
+    % Cria uma nova janela (figure) com centralização de acordo com a resolução do monitor
+    fig_width = 900;
+    fig_height = 600;
+    f = figure('Position', [(screen_width - fig_width) / 2, (screen_height - fig_height) / 2, fig_width, fig_height], ...
+                'Name', 'Processamento de Imagens', 'NumberTitle', 'off', 'Resize', 'on');
 
-  % Eixo para exibição da imagem original
-  ax1 = axes('Parent', f, 'Position', [0.1, 0.5, 0.35, 0.4]);
-  title(ax1, 'Imagem Original');
+    % Eixo para exibição da imagem original
+    ax1 = axes('Parent', f, 'Position', [0.1, 0.5, 0.35, 0.4]);
+    title(ax1, 'Imagem Original');
 
-  % Eixo para exibição da imagem modificada
-  ax2 = axes('Parent', f, 'Position', [0.55, 0.5, 0.35, 0.4]);
-  title(ax2, 'Imagem Modificada');
+    % Eixo para exibição da imagem modificada
+    ax2 = axes('Parent', f, 'Position', [0.55, 0.5, 0.35, 0.4]);
+    title(ax2, 'Imagem Modificada');
 
-  % Largura total dos sliders
-  slider_width_total = 2 * 300 + 30;  % Largura total para centralizar os sliders
+    % Largura total dos sliders
+    slider_width_total = 2 * 300 + 30;  % Largura total para centralizar os sliders
 
-  % Slider para escala de cinza (centralizado)
-  slider_gray = uicontrol('Style', 'slider', 'Min', 0, 'Max', 100, 'Value', 50, ...
-                    'Position', [(fig_width - slider_width_total) / 2, 250, 300, 20], ...
-                    'Tag', 'slider_gray', ...
-                    'Visible', 'off', ...  % Inicialmente oculto
-                    'Callback', @(src, event) grey_function(src, ax1, ax2));
-  uicontrol('Style', 'text', 'String', 'Escala de Cinza', 'Position', [(fig_width - slider_width_total) / 2 + 100, 275, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_gray', 'Visible', 'off');
+    % Slider para escala de cinza (centralizado)
+    slider_gray = uicontrol('Style', 'slider', 'Min', 0, 'Max', 100, 'Value', 50, ...
+                        'Position', [(fig_width - slider_width_total) / 2, 250, 300, 20], ...
+                        'Tag', 'slider_gray', ...
+                        'Visible', 'off', ...  % Inicialmente oculto
+                        'Callback', @(src, event) grey_function(src, ax1, ax2));
+    uicontrol('Style', 'text', 'String', 'Escala de Cinza', 'Position', [(fig_width - slider_width_total) / 2 + 100, 275, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_gray', 'Visible', 'off');
 
-  % Slider para contraste (centralizado)
-  slider_contrast = uicontrol('Style', 'slider', 'Min', -100, 'Max', 100, 'Value', 0, ...
-                    'Position', [(fig_width - slider_width_total) / 2 + 330, 250, 300, 20], ...
-                    'Tag', 'slider_contrast', ...
-                    'Visible', 'off', ...  % Inicialmente oculto
-                    'Callback', @(src, event) grey_function(src, ax1, ax2));
-  uicontrol('Style', 'text', 'String', 'Contraste', 'Position', [(fig_width - slider_width_total) / 2 + 430, 275, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_contrast', 'Visible', 'off');
+    % Slider para contraste (centralizado)
+    slider_contrast = uicontrol('Style', 'slider', 'Min', -100, 'Max', 100, 'Value', 0, ...
+                        'Position', [(fig_width - slider_width_total) / 2 + 330, 250, 300, 20], ...
+                        'Tag', 'slider_contrast', ...
+                        'Visible', 'off', ...  % Inicialmente oculto
+                        'Callback', @(src, event) grey_function(src, ax1, ax2));
+    uicontrol('Style', 'text', 'String', 'Contraste', 'Position', [(fig_width - slider_width_total) / 2 + 430, 275, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_contrast', 'Visible', 'off');
 
     % Define as larguras dos elementos e espaçamento
     element_width = 150;
@@ -115,10 +115,19 @@ function custom_interface_v2()
                 'Position', [(fig_width - total_width) / 2, 50, button_width, button_height], ...
                 'Callback', @(src, event) image_operations('load', ax1, ax2));
 
-    % Menu suspenso para seleção de filtros (centralizado entre os botões)
-    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda', 'Ruído'}, ...
-                            'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
-                            'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+    % Adicionando a opção de Limiarização no menu de seleção de filtros
+    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda', 'Ruidos', 'Limiarização', 'Histograma (Escala de Cinza)'}, ...
+                        'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
+                        'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+
+    % Adicionar um slider para o valor do limiar (Threshold)
+    slider_threshold = uicontrol('Style', 'slider', 'Min', 0, 'Max', 1, 'Value', 0.5, ...
+                        'Position', [(fig_width - 300) / 2, fig_height*0.3, 300, 20], ...
+                        'Tag', 'slider_threshold', ...
+                        'Visible', 'off', ...  % Inicialmente oculto
+                        'Callback', @(src, event) apply_threshold_filter(ax1, ax2));
+
+    uicontrol('Style', 'text', 'String', 'Valor de Limiar', 'Position', [(fig_width - 100) / 2, fig_height*0.3 + 25, 100, 20], 'HorizontalAlignment', 'center', 'Tag', 'label_threshold', 'Visible', 'off');
 
 
     % Atualize o Popup de Seleção de Filtro para Extração de Borda
@@ -173,7 +182,6 @@ function custom_interface_v2()
                                 'Visible', 'off', ...
                                 'Callback', @(src, event) apply_noise(ax2));
 
-
     % Espera até que a janela seja fechada
     uiwait(f);
 end
@@ -185,6 +193,7 @@ function apply_filter(filter_index, ax1, ax2)
         errordlg('Por favor, carregue uma imagem antes de aplicar um filtro.', 'Erro de Carregamento de Imagem');
         return;
     end
+
 
     % Ocultar todos os controles inicialmente
     set(findobj('Tag', 'slider_gray'), 'Visible', 'off');
@@ -205,17 +214,14 @@ function apply_filter(filter_index, ax1, ax2)
     set(findobj('Tag', 'label_filter_type_edge'), 'Visible', 'off');
     set(findobj('Tag', 'apply_button_edge'), 'Visible', 'off');
     set(findobj('Tag', 'popup_noise_type'), 'Visible', 'off');
-        set(findobj('Tag', 'label_noise_type'), 'Visible', 'off');
-        set(findobj('Tag', 'input_param_variance'), 'Visible', 'off');
-        set(findobj('Tag', 'label_param_variance'), 'Visible', 'off');
-        set(findobj('Tag', 'apply_button_noise'), 'Visible', 'off');
+    set(findobj('Tag', 'label_noise_type'), 'Visible', 'off');
+    set(findobj('Tag', 'input_param_variance'), 'Visible', 'off');
+    set(findobj('Tag', 'label_param_variance'), 'Visible', 'off');
+    set(findobj('Tag', 'apply_button_noise'), 'Visible', 'off');
+    set(findobj('Tag', 'slider_threshold'), 'Visible', 'off');
+    set(findobj('Tag', 'label_threshold'), 'Visible', 'off');
 
-    img = evalin('base', 'img');
-    if isempty(img)
-        errordlg('Carregue uma imagem primeiro!', 'Erro');
-        return;
-    end
-    
+    % Funções específicas para cada filtro
     switch filter_index
         case 2  % Escala de Cinza
             set(findobj('Tag', 'slider_gray'), 'Visible', 'on');
@@ -254,10 +260,111 @@ function apply_filter(filter_index, ax1, ax2)
             set(findobj('Tag', 'apply_button_noise'), 'Visible', 'on');
             apply_noise(ax2);
 
+        case 7  % Limiarização
+            set(findobj('Tag', 'slider_threshold'), 'Visible', 'on');
+            set(findobj('Tag', 'label_threshold'), 'Visible', 'on');
+            apply_threshold_filter(ax1, ax2);
+
+        case 8  % Histograma (Escala de Cinza)
+            % Dimensões do monitor para centralização
+            screen_width = 1920;
+            screen_height = 1080;
+
+            % Cria uma nova janela (figure) com centralização de acordo com a resolução do monitor
+            fig_width = 900;
+            fig_height = 600;
+            f = figure('Position', [(screen_width - fig_width) / 2, (screen_height - fig_height) / 2, fig_width, fig_height], ...
+                'Name', 'Processamento de Imagens', 'NumberTitle', 'off', 'Resize', 'on');
+            % Eixo para exibir a imagem equalizada (abaixo da imagem original)
+            ax3 = axes('Parent', f, 'Position', [0.1, 0.1, 0.35, 0.3], 'Visible', 'off');
+            title(ax3, 'Imagem Equalizada (Escala de cinza)');
+
+            % Eixo para exibir o histograma da imagem equalizada (abaixo do histograma atual)
+            ax4 = axes('Parent', f, 'Position', [0.55, 0.1, 0.35, 0.3], 'Visible', 'off');
+            title(ax4, 'Histograma Equalizado');
+
+            % Eixo para exibição da imagem original
+            ax11 = axes('Parent', f, 'Position', [0.1, 0.5, 0.35, 0.3]);
+            title(ax11, 'Imagem (Escala de cinza)');
+
+            % Eixo para exibição da imagem modificada
+            ax22 = axes('Parent', f, 'Position', [0.55, 0.5, 0.35, 0.3]);
+            title(ax22, 'Histograma');
+            
+            apply_histogram_equalization(ax11, ax22, ax3, ax4);
+
         otherwise
             errordlg('Seleção de filtro inválida!', 'Erro');
     end
 end
+
+
+function apply_histogram_equalization(ax1, ax2, ax3, ax4)
+    % Verifica se a imagem foi carregada
+    if evalin('base', 'exist(''img'', ''var'')') == 0
+        errordlg('Por favor, carregue uma imagem antes de aplicar o filtro.', 'Erro de Carregamento de Imagem');
+        return;
+    end
+
+    % Obtém a imagem original
+    img = evalin('base', 'img');
+
+    % Verifica se a imagem é colorida e converte para escala de cinza
+    if size(img, 3) == 3
+        img_gray = rgb2gray(img);
+    else
+        img_gray = img;
+    end
+
+    % Calcula o histograma da imagem original
+    histogram_values = imhist(img_gray);
+
+    % Equaliza a imagem
+    img_equalized = histeq(img_gray);
+
+    % Calcula o histograma da imagem equalizada
+    histogram_equalized = imhist(img_equalized);
+
+    % Exibe a imagem original e o histograma no eixo ax1 e ax2
+    axes(ax1);
+    imshow(img_gray);
+    title('Imagem Original (Escala de Cinza)');
+
+    axes(ax2);
+    bar(histogram_values);
+    title('Histograma Original (Escala de Cinza)');
+
+    % Exibe a imagem equalizada e o histograma equalizado no eixo ax3 e ax4
+    axes(ax3);
+    imshow(img_equalized);
+    title('Imagem Equalizada (Escala de Cinza)');
+
+    axes(ax4);
+    bar(histogram_equalized);
+    title('Histograma Equalizado (Escala de Cinza)');
+end
+
+
+function apply_threshold_filter(ax1, ax2)
+    % Verifica se uma imagem foi carregada
+    if evalin('base', 'exist(''img'', ''var'')') == 0
+        errordlg('Por favor, carregue uma imagem antes de aplicar um filtro.', 'Erro de Carregamento de Imagem');
+        return;
+    end
+
+    % Obtém a imagem original e o valor do limiar
+    img = evalin('base', 'img');
+    threshold_value = get(findobj('Tag', 'slider_threshold'), 'Value');
+
+    % Aplica o filtro de limiarização
+    img_filtered = threshold_filter(img, threshold_value);
+
+    % Exibe a imagem modificada
+    assignin('base', 'img_modified', img_filtered);  % Salva a imagem modificada
+    axes(ax2);
+    imshow(img_filtered);
+end
+
 
 function apply_noise(ax2)
     img = evalin('base', 'img');
