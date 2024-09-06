@@ -25,8 +25,8 @@ function img_filtered = edge_extraction(filter_type, img)
 
         case 'zerocross'
             % Aplica o filtro de extração de borda Zero-Crossing
-            img_filtered = edge(img, 'zerocross', [], 0.01);
-            img_filtered = double(img_filtered);
+            h = fspecial('laplacian', 0.2);
+            img_filtered = edge(img, 'zerocross',0, h);
 
         case 'log'
             % Filtro Laplacian of Gaussian (LoG)
