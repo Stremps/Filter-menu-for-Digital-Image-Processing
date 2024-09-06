@@ -49,6 +49,21 @@ function resizeUI(f, ax1, ax2, slider_gray, slider_contrast, filter_menu)
     set(findobj('Tag', 'slider_watershed_threshold'), 'Position', [(fig_width - total_width_watershed) / 2, fig_height*0.3, 300, 20]);
     set(findobj('Tag', 'label_watershed_threshold'), 'Position', [(fig_width - total_width_watershed) / 2, fig_height*0.3 + 25, 300, 20]);
 
+    % Centraliza o slider de contagem de objetos
+    total_width = 300;
+    set(findobj('Tag', 'slider_object_threshold'), 'Position', [(fig_width - total_width) / 2, fig_height * 0.3, 300, 20]);
+    set(findobj('Tag', 'label_object_threshold'), 'Position', [(fig_width - total_width) / 2, fig_height * 0.3 + 25, 300, 20]);
+
+    % Centraliza o número de objetos
+    set(findobj('Tag', 'text_object_count'), 'Position', [(fig_width - total_width) / 2, fig_height * 0.3 - 135, 300, 20]);
+
+    % Centraliza a entrada de valor mínimo para o bwareaopen (abaixo do slider)
+    set(findobj('Tag', 'input_min_area'), 'Position', [(fig_width - 100) / 2, fig_height * 0.3 - 55, 100, 20]);
+    set(findobj('Tag', 'label_min_area'), 'Position', [(fig_width - 200) / 2, fig_height * 0.3 - 30, 200, 20]);
+
+    % Centraliza o botão "Aplicar Filtro"
+    set(findobj('Tag', 'apply_buttonc'), 'Position', [(fig_width - 100) / 2, fig_height * 0.3 - 95, 100, 30]);
+
 
     % Centraliza os controles da Limiarização
     total_width = 300; % Largura do slider de Limiarização

@@ -115,10 +115,11 @@ function custom_interface_v2()
                 'Position', [(fig_width - total_width) / 2, 50, button_width, button_height], ...
                 'Callback', @(src, event) image_operations('load', ax1, ax2));
 
-    % Adicionando a opção de Watershed no menu de seleção de filtros
-    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda', 'Ruidos', 'Limiarização', 'Histograma (Escala de Cinza)', 'Watershed'}, ...
-                            'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
-                            'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+    % Menu flutante de filtros
+    filter_menu = uicontrol('Style', 'popupmenu', 'String', {'Selecionar Filtro', 'Escala de Cinza', 'Filtro Passa-Alta', 'Filtro Passa-Baixa', 'Extração de Borda', 'Ruidos', 'Limiarização', 'Histograma (Escala de Cinza)', 'Watershed', 'Contagem de Objetos'}, ...
+                        'Position', [(fig_width - total_width) / 2 + button_width + spacing, 50, button_width, button_height], ...
+                        'Callback', @(src, event) apply_filter(get(src, 'Value'), ax1, ax2));
+
 
 
 
@@ -194,6 +195,37 @@ function custom_interface_v2()
     uicontrol('Style', 'text', 'String', 'Valor de Limiar (Watershed)', 'Position', [(fig_width - 100) / 2, fig_height*0.3 + 25, 100, 20], ...
             'HorizontalAlignment', 'center', 'Tag', 'label_watershed_threshold', 'Visible', 'off');
 
+    % Adicionando o slider de threshold para a Contagem de Objetos
+    slider_object_threshold = uicontrol('Style', 'slider', 'Min', 0, 'Max', 1, 'Value', 0.5, ...
+                                        'Position', [(fig_width - 300) / 2, fig_height * 0.3, 300, 20], ...
+                                        'Tag', 'slider_object_threshold', ...
+                                        'Visible', 'off', ...  % Inicialmente oculto
+                                        'Callback', @(src, event) apply_object_count_filter(ax1, ax2, src));
+
+    uicontrol('Style', 'text', 'String', 'Valor de Limiar (Contagem de Objetos)', 'Position', [(fig_width - 300) / 2, fig_height * 0.3 + 25, 300, 20], ...
+                'HorizontalAlignment', 'center', 'Tag', 'label_object_threshold', 'Visible', 'off');
+
+    % Texto estático para mostrar a contagem de objetos
+    text_object_count = uicontrol('Style', 'text', 'String', 'Objetos: 0', ...
+                                'Position', [(fig_width - 100) / 2, fig_height * 0.3 - 50, 100, 20], ...
+                                'HorizontalAlignment', 'center', 'Tag', 'text_object_count', 'Visible', 'off');
+    
+    % Caixa de entrada para valor mínimo do bwareaopen
+    input_min_area = uicontrol('Style', 'edit', 'String', '50', ...  % Valor padrão 50
+                            'Position', [(fig_width - 100) / 2, fig_height * 0.3 - 75, 100, 20], ...
+                            'Tag', 'input_min_area', ...
+                            'Visible', 'off');  % Campo de entrada para valor da área mínima
+    uicontrol('Style', 'text', 'String', 'Área Mínima (bwareaopen)', ...
+                'Position', [(fig_width - 100) / 2, fig_height * 0.3 - 50, 100, 20], ...
+                'HorizontalAlignment', 'center', 'Tag', 'label_min_area', 'Visible', 'off');
+
+    % Botão para aplicar o filtro de contagem de objetos
+    apply_button_object_count = uicontrol('Style', 'pushbutton', 'String', 'Aplicar Filtro', ...
+                                        'Position', [(fig_width - 100) / 2, fig_height * 0.3 - 100, 100, 30], ...
+                                        'Visible', 'off', 'tag', 'apply_buttonc',...
+                                        'Callback', @(src, event) apply_object_count_filter(ax1, ax2, slider_object_threshold));
+
+
 
     % Espera até que a janela seja fechada
     uiwait(f);
@@ -235,6 +267,12 @@ function apply_filter(filter_index, ax1, ax2)
     set(findobj('Tag', 'label_threshold'), 'Visible', 'off');
     set(findobj('Tag', 'slider_watershed_threshold'), 'Visible', 'off');
     set(findobj('Tag', 'label_watershed_threshold'), 'Visible', 'off');
+    set(findobj('Tag', 'slider_object_threshold'), 'Visible', 'off');
+    set(findobj('Tag', 'label_object_threshold'), 'Visible', 'off');
+    set(findobj('Tag', 'text_object_count'), 'Visible', 'off');
+    set(findobj('Tag', 'label_min_area'), 'Visible', 'off');
+    set(findobj('Tag', 'input_min_area'), 'Visible', 'off');
+    set(findobj('Tag', 'apply_buttonc'), 'Visible', 'off');
 
     % Funções específicas para cada filtro
     switch filter_index
@@ -313,10 +351,86 @@ function apply_filter(filter_index, ax1, ax2)
         set(findobj('Tag', 'label_watershed_threshold'), 'Visible', 'on');
         apply_watershed_filter(ax1, ax2, findobj('Tag', 'slider_watershed_threshold'));
 
+        case 10  % Contagem de Objetos
+        set(findobj('Tag', 'slider_object_threshold'), 'Visible', 'on');
+        set(findobj('Tag', 'label_object_threshold'), 'Visible', 'on');
+        set(findobj('Tag', 'text_object_count'), 'Visible', 'on');
+        set(findobj('Tag', 'label_min_area'), 'Visible', 'on');
+        set(findobj('Tag', 'input_min_area'), 'Visible', 'on');
+        set(findobj('Tag', 'apply_buttonc'), 'Visible', 'on'); 
+        apply_object_count_filter(ax1, ax2, findobj('Tag', 'slider_object_threshold'));
+
+
+
         otherwise
             errordlg('Seleção de filtro inválida!', 'Erro');
     end
 end
+
+function apply_object_count_filter(ax2, ax1, slider)
+    % Verifica se uma imagem foi carregada
+    if evalin('base', 'exist(''img'', ''var'')') == 0
+        errordlg('Por favor, carregue uma imagem antes de aplicar o filtro.', 'Erro de Carregamento de Imagem');
+        return;
+    end
+
+    % Obtém a imagem original, sem modificá-la
+    img_original = evalin('base', 'img');
+
+    % Faz uma cópia da imagem para ser modificada
+    img_modified = img_original;
+
+    % Obtém o valor do limiar do slider
+    threshold_value = get(slider, 'Value');
+
+    % Obtém o valor inserido na caixa de entrada para a área mínima
+    min_area = str2double(get(findobj('Tag', 'input_min_area'), 'String'));
+
+    % Verifica se o valor é válido
+    if isnan(min_area) || min_area <= 0
+        errordlg('Insira um valor numérico válido para a área mínima!', 'Erro');
+        return;
+    end
+
+    % Exibe a imagem original no eixo ax1 (imagem original deve sempre aparecer aqui)
+    axes(ax1);
+    imshow(img_original, []);  % Garante que a imagem original é exibida no ax1
+    title(ax1, 'Imagem Original');
+
+    % Verifica se a imagem já é binária
+    if ~islogical(img_modified)
+        % Se não for binária, converte para escala de cinza, se necessário
+        if size(img_modified, 3) == 3
+            img_modified = rgb2gray(img_modified);
+        end
+        % Binariza a imagem com base no valor do limiar
+        bw = im2bw(img_modified, threshold_value);
+    else
+        bw = img_modified;  % A imagem já está binarizada
+    end
+
+    % Remove áreas pequenas baseadas no valor mínimo de área
+    bw = bwareaopen(bw, min_area);
+
+    % Verifica se a imagem é 2D antes de aplicar o bwlabel
+    if ndims(bw) ~= 2
+        errordlg('A imagem deve ser uma matriz 2D após a binarização.', 'Erro');
+        return;
+    end
+
+    % Aplica a função de contagem de objetos com o valor mínimo de área
+    img_with_objects = object_count_filter(bw, threshold_value, min_area);
+
+    % Atualiza o número de objetos
+    [~, num_objects] = bwlabel(bw);
+    set(findobj('Tag', 'text_object_count'), 'String', ['Objetos: ', num2str(num_objects)]);
+
+    % Salva a imagem modificada na base de dados
+    assignin('base', 'img_modified', img_with_objects);
+end
+
+
+
 
 function apply_watershed_filter(ax1, ax2, src)
     % Verifica se uma imagem foi carregada
@@ -339,9 +453,6 @@ function apply_watershed_filter(ax1, ax2, src)
     imshow(img_segmented);
     title('Segmentação Watershed');
 end
-
-
-
 
 function apply_histogram_equalization(ax1, ax2, ax3, ax4)
     % Verifica se a imagem foi carregada
@@ -537,5 +648,3 @@ function apply_highpass_filter(ax2)
     axes(ax2);
     imshow(img_filtered);
 end
-
-
